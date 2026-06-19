@@ -1,0 +1,425 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+  .layout { display: flex; min-height: 100vh; background: var(--color-background-tertiary); }
+
+  .sidebar {
+    width: 220px;
+    min-height: 600px;
+    background: var(--color-background-primary);
+    border-right: 0.5px solid var(--color-border-tertiary);
+    padding: 20px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .logo {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    padding: 4px 10px 16px;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    margin-bottom: 8px;
+    letter-spacing: 0.04em;
+  }
+  .logo span { color: #185FA5; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 10px;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    border: none; background: none; width: 100%; text-align: left;
+    transition: background 0.15s;
+  }
+  .nav-item:hover { background: var(--color-background-secondary); color: var(--color-text-primary); }
+  .nav-item.active { background: #E6F1FB; color: #185FA5; font-weight: 500; }
+  .nav-item i { font-size: 17px; }
+  .nav-section { font-size: 10px; font-weight: 500; color: var(--color-text-tertiary); padding: 12px 10px 4px; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  .main { flex: 1; padding: 20px 24px; overflow: auto; }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .topbar-left h1 { font-size: 18px; font-weight: 500; color: var(--color-text-primary); }
+  .topbar-left p { font-size: 13px; color: var(--color-text-secondary); margin-top: 2px; }
+  .topbar-right { display: flex; gap: 10px; align-items: center; }
+  .badge-day {
+    font-size: 12px; padding: 5px 12px;
+    background: var(--color-background-secondary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-md);
+    color: var(--color-text-secondary);
+  }
+  .btn-primary {
+    font-size: 13px; padding: 6px 14px;
+    background: #185FA5; color: white; border: none;
+    border-radius: var(--border-radius-md); cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .metric-card {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 16px 18px;
+  }
+  .metric-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .metric-label i { font-size: 15px; }
+  .metric-value { font-size: 26px; font-weight: 500; color: var(--color-text-primary); }
+  .metric-sub { font-size: 12px; margin-top: 4px; }
+  .metric-sub.up { color: #0F6E56; }
+  .metric-sub.down { color: #993C1D; }
+
+  .row2 { display: grid; grid-template-columns: 1fr 280px; gap: 16px; margin-bottom: 20px; }
+
+  .card {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 18px 20px;
+  }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .card-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+  .card-action { font-size: 12px; color: #185FA5; cursor: pointer; background: none; border: none; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; padding: 0 10px 10px 0; text-align: left; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  td { padding: 11px 10px 11px 0; border-bottom: 0.5px solid var(--color-border-tertiary); color: var(--color-text-primary); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+
+  .pill {
+    display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 500;
+  }
+  .pill-ok { background: #EAF3DE; color: #3B6D11; }
+  .pill-late { background: #FAEEDA; color: #854F0B; }
+  .pill-fail { background: #FCEBEB; color: #A32D2D; }
+  .pill-perm { background: #E6F1FB; color: #185FA5; }
+
+  .turno-tag {
+    display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 11px;
+    background: var(--color-background-secondary); color: var(--color-text-secondary);
+    border: 0.5px solid var(--color-border-tertiary);
+  }
+
+  .avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 500; margin-right: 8px; flex-shrink: 0;
+  }
+  .av-blue { background: #E6F1FB; color: #185FA5; }
+  .av-teal { background: #E1F5EE; color: #0F6E56; }
+  .av-purple { background: #EEEDFE; color: #534AB7; }
+  .av-coral { background: #FAECE7; color: #993C1D; }
+
+  .emp-cell { display: flex; align-items: center; }
+
+  .area-list { display: flex; flex-direction: column; gap: 10px; }
+  .area-row { display: flex; flex-direction: column; gap: 4px; }
+  .area-name { font-size: 13px; color: var(--color-text-primary); display: flex; justify-content: space-between; }
+  .area-name span { font-size: 12px; color: var(--color-text-secondary); }
+  .bar-track { height: 6px; background: var(--color-background-secondary); border-radius: 3px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; }
+
+  .alert-list { display: flex; flex-direction: column; gap: 8px; }
+  .alert-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--border-radius-md);
+    border: 0.5px solid var(--color-border-tertiary);
+    background: var(--color-background-secondary);
+    font-size: 12px;
+  }
+  .alert-item i { font-size: 16px; margin-top: 1px; flex-shrink: 0; }
+  .alert-msg { color: var(--color-text-primary); line-height: 1.4; }
+  .alert-time { color: var(--color-text-tertiary); font-size: 11px; margin-top: 2px; }
+  .alert-warn i { color: #BA7517; }
+  .alert-danger i { color: #A32D2D; }
+  .alert-info i { color: #185FA5; }
+
+  .filter-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .filter-btn {
+    font-size: 12px; padding: 4px 10px;
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-md);
+    background: var(--color-background-secondary);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+  }
+  .filter-btn.sel { background: #185FA5; color: white; border-color: #185FA5; }
+  .search-input {
+    font-size: 12px; padding: 4px 10px;
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-md);
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+    margin-left: auto;
+    width: 160px;
+  }
+
+  .row3 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .turno-section { margin-bottom: 10px; }
+  .turno-header { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); padding: 6px 0 4px; border-bottom: 0.5px solid var(--color-border-tertiary); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+</style>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="logo"><span>NEXUS</span> — Admin</div>
+    <span class="nav-section">General</span>
+    <button class="nav-item active"><i class="ti ti-layout-dashboard" aria-hidden="true"></i> Inicio</button>
+    <button class="nav-item"><i class="ti ti-clock" aria-hidden="true"></i> Registros hoy</button>
+    <button class="nav-item"><i class="ti ti-calendar" aria-hidden="true"></i> Historial</button>
+    <span class="nav-section">Empleados</span>
+    <button class="nav-item"><i class="ti ti-users" aria-hidden="true"></i> Lista empleados</button>
+    <button class="nav-item"><i class="ti ti-user-plus" aria-hidden="true"></i> Nuevo empleado</button>
+    <button class="nav-item"><i class="ti ti-building" aria-hidden="true"></i> Áreas / Turnos</button>
+    <span class="nav-section">Reportes</span>
+    <button class="nav-item"><i class="ti ti-chart-bar" aria-hidden="true"></i> Puntualidad</button>
+    <button class="nav-item"><i class="ti ti-file-export" aria-hidden="true"></i> Exportar</button>
+    <button class="nav-item"><i class="ti ti-file-check" aria-hidden="true"></i> Justificaciones</button>
+    <span class="nav-section">Sistema</span>
+    <button class="nav-item"><i class="ti ti-settings" aria-hidden="true"></i> Configuración</button>
+    <button class="nav-item"><i class="ti ti-logout" aria-hidden="true"></i> Cerrar sesión</button>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1>Panel de control</h1>
+        <p>Domingo, 10 de mayo de 2026</p>
+      </div>
+      <div class="topbar-right">
+        <span class="badge-day"><i class="ti ti-sun" aria-hidden="true"></i> Turno mañana activo</span>
+        <button class="btn-primary"><i class="ti ti-plus" aria-hidden="true"></i> Nuevo registro</button>
+      </div>
+    </div>
+
+    <!-- Métricas principales -->
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="metric-label"><i class="ti ti-users" aria-hidden="true" style="color:#185FA5"></i> Empleados activos</div>
+        <div class="metric-value">80</div>
+        <div class="metric-sub up"><i class="ti ti-arrow-up" aria-hidden="true"></i> +2 este mes</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label"><i class="ti ti-check" aria-hidden="true" style="color:#0F6E56"></i> Presentes hoy</div>
+        <div class="metric-value">71</div>
+        <div class="metric-sub up">88.7% de asistencia</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label"><i class="ti ti-clock-exclamation" aria-hidden="true" style="color:#BA7517"></i> Tardanzas</div>
+        <div class="metric-value">5</div>
+        <div class="metric-sub down"><i class="ti ti-arrow-up" aria-hidden="true"></i> +2 vs ayer</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label"><i class="ti ti-x" aria-hidden="true" style="color:#A32D2D"></i> Faltas</div>
+        <div class="metric-value">4</div>
+        <div class="metric-sub up"><i class="ti ti-arrow-down" aria-hidden="true"></i> -1 vs ayer</div>
+      </div>
+    </div>
+
+    <!-- Fila 2: Tabla + alertas -->
+    <div class="row2">
+      <!-- Tabla registros hoy -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Registros de hoy</span>
+          <button class="card-action">Ver todos →</button>
+        </div>
+        <div class="filter-bar">
+          <button class="filter-btn sel" id="f-all" onclick="filterTable('all')">Todos</button>
+          <button class="filter-btn" id="f-ok" onclick="filterTable('ok')">A tiempo</button>
+          <button class="filter-btn" id="f-late" onclick="filterTable('late')">Tardanza</button>
+          <button class="filter-btn" id="f-fail" onclick="filterTable('fail')">Falta</button>
+          <input class="search-input" type="text" placeholder="Buscar empleado..." oninput="searchTable(this.value)">
+        </div>
+        <table id="main-table">
+          <thead>
+            <tr>
+              <th>Empleado</th>
+              <th>Hora entrada</th>
+              <th>Área</th>
+              <th>Turno</th>
+              <th>Cargo</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            <tr data-estado="ok" data-name="juan pérez">
+              <td><div class="emp-cell"><div class="avatar av-blue">JP</div>Juan Pérez</div></td>
+              <td>08:14 AM</td><td>TI</td><td><span class="turno-tag">Mañana</span></td><td style="color:var(--color-text-secondary)">Dev. Backend</td>
+              <td><span class="pill pill-ok">A tiempo</span></td>
+            </tr>
+            <tr data-estado="late" data-name="ana torres">
+              <td><div class="emp-cell"><div class="avatar av-teal">AT</div>Ana Torres</div></td>
+              <td>08:35 AM</td><td>Administración</td><td><span class="turno-tag">Mañana</span></td><td style="color:var(--color-text-secondary)">Asistente</td>
+              <td><span class="pill pill-late">Tardanza</span></td>
+            </tr>
+            <tr data-estado="fail" data-name="luis mamani">
+              <td><div class="emp-cell"><div class="avatar av-coral">LM</div>Luis Mamani</div></td>
+              <td>—</td><td>Operaciones</td><td><span class="turno-tag">Mañana</span></td><td style="color:var(--color-text-secondary)">Operador</td>
+              <td><span class="pill pill-fail">Falta</span></td>
+            </tr>
+            <tr data-estado="ok" data-name="carla quispe">
+              <td><div class="emp-cell"><div class="avatar av-purple">CQ</div>Carla Quispe</div></td>
+              <td>07:58 AM</td><td>RRHH</td><td><span class="turno-tag">Mañana</span></td><td style="color:var(--color-text-secondary)">Coordinadora</td>
+              <td><span class="pill pill-ok">A tiempo</span></td>
+            </tr>
+            <tr data-estado="late" data-name="roberto silva">
+              <td><div class="emp-cell"><div class="avatar av-blue">RS</div>Roberto Silva</div></td>
+              <td>09:05 AM</td><td>TI</td><td><span class="turno-tag">Tarde</span></td><td style="color:var(--color-text-secondary)">Soporte</td>
+              <td><span class="pill pill-late">Tardanza</span></td>
+            </tr>
+            <tr data-estado="perm" data-name="diana flores">
+              <td><div class="emp-cell"><div class="avatar av-teal">DF</div>Diana Flores</div></td>
+              <td>—</td><td>Contabilidad</td><td><span class="turno-tag">Mañana</span></td><td style="color:var(--color-text-secondary)">Contadora</td>
+              <td><span class="pill pill-perm">Permiso</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Panel lateral: alertas + puntualidad por área -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Alertas</span>
+            <button class="card-action">Ver todas →</button>
+          </div>
+          <div class="alert-list">
+            <div class="alert-item alert-danger">
+              <i class="ti ti-alert-circle" aria-hidden="true"></i>
+              <div><div class="alert-msg">Luis Mamani no registró entrada (Operaciones)</div><div class="alert-time">Hace 2h</div></div>
+            </div>
+            <div class="alert-item alert-warn">
+              <i class="ti ti-clock-exclamation" aria-hidden="true"></i>
+              <div><div class="alert-msg">Ana Torres llegó 35 min tarde (Administración)</div><div class="alert-time">Hace 1h</div></div>
+            </div>
+            <div class="alert-item alert-info">
+              <i class="ti ti-file-check" aria-hidden="true"></i>
+              <div><div class="alert-msg">Diana Flores: permiso aprobado pendiente de cierre</div><div class="alert-time">Hace 3h</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Puntualidad por área</span>
+          </div>
+          <div class="area-list">
+            <div class="area-row">
+              <div class="area-name">TI <span>94%</span></div>
+              <div class="bar-track"><div class="bar-fill" style="width:94%;background:#185FA5"></div></div>
+            </div>
+            <div class="area-row">
+              <div class="area-name">RRHH <span>91%</span></div>
+              <div class="bar-track"><div class="bar-fill" style="width:91%;background:#0F6E56"></div></div>
+            </div>
+            <div class="area-row">
+              <div class="area-name">Contabilidad <span>88%</span></div>
+              <div class="bar-track"><div class="bar-fill" style="width:88%;background:#534AB7"></div></div>
+            </div>
+            <div class="area-row">
+              <div class="area-name">Administración <span>80%</span></div>
+              <div class="bar-track"><div class="bar-fill" style="width:80%;background:#BA7517"></div></div>
+            </div>
+            <div class="area-row">
+              <div class="area-name">Operaciones <span>72%</span></div>
+              <div class="bar-track"><div class="bar-fill" style="width:72%;background:#A32D2D"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fila 3: Vista por turnos + Justificaciones pendientes -->
+    <div class="row3">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Resumen por turno</span>
+        </div>
+        <div class="turno-section">
+          <div class="turno-header"><i class="ti ti-sun" aria-hidden="true" style="color:#BA7517"></i> Turno mañana (07:00 – 15:00)</div>
+          <table>
+            <thead><tr><th>Turno</th><th>Asignados</th><th>Presentes</th><th>Tardanzas</th><th>Faltas</th></tr></thead>
+            <tbody>
+              <tr><td>Mañana</td><td>48</td><td>43</td><td>3</td><td>2</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="turno-section">
+          <div class="turno-header"><i class="ti ti-moon" aria-hidden="true" style="color:#534AB7"></i> Turno tarde (15:00 – 23:00)</div>
+          <table>
+            <thead><tr><th>Turno</th><th>Asignados</th><th>Presentes</th><th>Tardanzas</th><th>Faltas</th></tr></thead>
+            <tbody>
+              <tr><td>Tarde</td><td>32</td><td>28</td><td>2</td><td>2</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Justificaciones pendientes</span>
+          <button class="card-action">Gestionar →</button>
+        </div>
+        <table>
+          <thead><tr><th>Empleado</th><th>Motivo</th><th>Fecha</th><th>Acción</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><div class="emp-cell"><div class="avatar av-coral">LM</div>Luis M.</div></td>
+              <td style="color:var(--color-text-secondary);font-size:12px">Falta</td>
+              <td style="font-size:12px">10/05</td>
+              <td><button style="font-size:11px;padding:3px 8px;background:#E6F1FB;color:#185FA5;border:none;border-radius:4px;cursor:pointer">Revisar</button></td>
+            </tr>
+            <tr>
+              <td><div class="emp-cell"><div class="avatar av-teal">DF</div>Diana F.</div></td>
+              <td style="color:var(--color-text-secondary);font-size:12px">Permiso</td>
+              <td style="font-size:12px">10/05</td>
+              <td><button style="font-size:11px;padding:3px 8px;background:#EAF3DE;color:#3B6D11;border:none;border-radius:4px;cursor:pointer">Aprobar</button></td>
+            </tr>
+            <tr>
+              <td><div class="emp-cell"><div class="avatar av-purple">MR</div>Marco R.</div></td>
+              <td style="color:var(--color-text-secondary);font-size:12px">Tardanza</td>
+              <td style="font-size:12px">09/05</td>
+              <td><button style="font-size:11px;padding:3px 8px;background:#E6F1FB;color:#185FA5;border:none;border-radius:4px;cursor:pointer">Revisar</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const rows = document.querySelectorAll('#table-body tr');
+let currentFilter = 'all';
+let currentSearch = '';
+
+function filterTable(estado) {
+  currentFilter = estado;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('sel'));
+  document.getElementById('f-' + estado)?.classList.add('sel');
+  applyFilters();
+}
+
+function searchTable(val) {
+  currentSearch = val.toLowerCase();
+  applyFilters();
+}
+
+function applyFilters() {
+  rows.forEach(row => {
+    const matchEstado = currentFilter === 'all' || row.dataset.estado === currentFilter;
+    const matchSearch = !currentSearch || row.dataset.name.includes(currentSearch);
+    row.style.display = matchEstado && matchSearch ? '' : 'none';
+  });
+}
+</script>
