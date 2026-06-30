@@ -2,6 +2,7 @@ package com.asistencia.sistema_asistencia.model;
 
 import jakarta.persistence.*;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "rol")
